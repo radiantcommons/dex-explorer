@@ -167,6 +167,13 @@ export class MarketOrderFormStore {
     return pnum(this._quoteAsset.balance, this._quoteAsset.exponent).toNumber();
   }
 
+  get baseBalance(): undefined | number {
+    if (!this._baseAsset?.balance) {
+      return undefined;
+    }
+    return pnum(this._baseAsset.balance, this._baseAsset.exponent).toNumber();
+  }
+
   setBalanceFraction(x: number) {
     const clamped = Math.max(0.0, Math.min(1.0, x));
     if (this.direction === 'buy' && this._quoteAsset?.balance) {
@@ -221,8 +228,12 @@ export class MarketOrderFormStore {
   }
 
   get plan(): undefined | MarketOrderPlan {
+    // necessary for clearing the gas fee when the input for market orders is cleared
     if (!this._baseAsset || !this._quoteAsset) {
-      return;
+      return undefined;
+    }
+    if (!this._baseAssetInput || !this._quoteAssetInput) {
+      return undefined;
     }
     const { inputAsset, inputAmount, output } =
       this.direction === 'buy'
